@@ -1,127 +1,94 @@
 import streamlit as st
+import pandas as pd
+import altair as alt
 
-# MBTI 유형별 공부법 데이터 (간단한 예시)
-mbti_study_tips = {
-    "ISTJ": {
-        "title": "꼼꼼하고 체계적인 공부법",
-        "description": "계획을 철저히 세우고, 규칙적인 루틴을 만듭니다. 사실 기반의 학습을 선호하며, 반복 학습과 노트 정리를 통해 지식을 확실하게 다집니다.",
-        "tips": ["📚 주간/월간 학습 계획표 작성", "📝 오답 노트 및 핵심 요약 노트 정리", "🗓️ 정해진 시간에 규칙적으로 공부하기"]
-    },
-    "ISFJ": {
-        "title": "안정적이고 실용적인 공부법",
-        "description": "친숙한 환경에서 안정감을 느끼며 공부합니다. 다른 사람과 함께 공부하는 것을 즐기며, 실용적인 정보를 배우는 것을 좋아합니다.",
-        "tips": ["👥 스터디 그룹 참여", "✍️ 손으로 직접 쓰는 필기 선호", "😌 조용하고 익숙한 장소에서 공부하기"]
-    },
-    "INFJ": {
-        "title": "통찰력과 의미를 찾는 공부법",
-        "description": "큰 그림을 이해하고, 지식의 심오한 의미를 파악하려 합니다. 이론과 개념을 깊이 탐구하며, 자신만의 해석을 더하는 것을 즐깁니다.",
-        "tips": ["💭 명상 또는 깊은 사고를 통해 개념 정리", "💡 다양한 관점에서 주제를 분석하기", "🔗 지식 간의 연결 고리를 찾으며 학습하기"]
-    },
-    "INTJ": {
-        "title": "논리적이고 전략적인 공부법",
-        "description": "효율적인 시스템을 구축하고, 논리적인 구조를 이해하려 합니다. 목표 지향적이며, 자신만의 독자적인 방법으로 학습합니다.",
-        "tips": ["📊 전체적인 구조와 목차를 먼저 파악", "🧐 비판적 사고로 정보의 오류 찾기", "🧠 복잡한 문제를 단순화하여 해결"]
-    },
-    "ISTP": {
-        "title": "실용적이고 경험 중심의 공부법",
-        "description": "이론보다는 실제 경험을 통해 배울 때 가장 효과적입니다. 직접 해보면서 문제를 해결하는 것을 좋아합니다.",
-        "tips": ["🛠️ 실험, 실습 등 몸으로 익히는 학습", "🎮 게임이나 시뮬레이션을 활용한 학습", "🏃‍♂️ 짧고 집중적인 학습 시간 활용"]
-    },
-    "ISFP": {
-        "title": "자유롭고 감각적인 공부법",
-        "description": "딱딱한 규칙보다는 자유로운 분위기에서 창의성을 발휘합니다. 시각적이고 감각적인 자료를 활용하는 것을 즐깁니다.",
-        "tips": ["🎨 마인드맵이나 그림으로 개념 정리", "🎶 음악을 들으며 자유롭게 공부하기", "🏞️ 새로운 장소에서 분위기 전환하며 학습"]
-    },
-    "INFP": {
-        "title": "창의적이고 개인적인 공부법",
-        "description": "자신의 가치관과 흥미에 맞는 주제를 깊이 파고듭니다. 정해진 틀보다는 자신만의 방식으로 학습하는 것을 선호합니다.",
-        "tips": ["✍️ 자신의 생각을 글로 쓰면서 학습", "💭 상상력을 동원하여 개념 이해", "💖 흥미로운 주제부터 시작하여 몰입"]
-    },
-    "INTP": {
-        "title": "분석적이고 지식 탐구적인 공부법",
-        "description": "지적 호기심이 많고, 논리적인 원리를 이해하려 합니다. 혼자서 깊게 생각하고, 복잡한 문제를 분석하는 것을 즐깁니다.",
-        "tips": ["🔬 새로운 이론이나 개념을 깊이 파고들기", "🧠 혼자만의 공간에서 집중하여 학습", "💡 궁금한 점은 끝까지 파헤쳐 해결"]
-    },
-    "ESTP": {
-        "title": "활동적이고 즉흥적인 공부법",
-        "description": "새로운 경험을 통해 배우는 것을 좋아합니다. 즉흥적으로 행동하며, 실용적이고 재미있는 정보를 선호합니다.",
-        "tips": ["🗣️ 친구들과 토론하며 지식 공유", "🎮 퀴즈나 게임을 통해 재미있게 학습", "🤸‍♂️ 짧은 시간 동안 여러 가지를 학습"]
-    },
-    "ESFP": {
-        "title": "즐겁고 사교적인 공부법",
-        "description": "재미있고 활기찬 분위기에서 학습 효과가 극대화됩니다. 다른 사람들과 소통하며 배우는 것을 즐깁니다.",
-        "tips": ["👥 스터디 그룹이나 멘토에게 질문하기", "🎤 발표나 설명하며 학습 내용 정리", "🎉 학습을 게임처럼 즐겁게 만들기"]
-    },
-    "ENFP": {
-        "title": "열정적이고 관계 중심의 공부법",
-        "description": "새로운 아이디어를 탐색하고, 사람들과 교류하며 영감을 얻습니다. 흥미와 재미를 느끼는 분야에 깊이 몰입합니다.",
-        "tips": ["🤯 자유로운 브레인스토밍으로 아이디어 확장", "👭 친구들과 함께 새로운 주제 탐색", "🎨 시각적이고 다채로운 자료 활용"]
-    },
-    "ENTP": {
-        "title": "탐구적이고 토론 중심의 공부법",
-        "description": "새로운 가능성을 탐색하고, 논리적인 논쟁을 통해 지식을 확장합니다. 기존의 방식에 도전하며 창의적인 해결책을 찾습니다.",
-        "tips": ["🗣️ 토론 그룹에 참여하여 논리력 강화", "🤔 '만약에' 질문을 통해 사고 확장", "📈 다양한 분야의 정보를 연결하여 학습"]
-    },
-    "ESTJ": {
-        "title": "체계적이고 현실적인 공부법",
-        "description": "목표와 규칙을 명확히 하고, 계획에 따라 효율적으로 실행합니다. 실용적인 지식과 명확한 사실을 중요하게 생각합니다.",
-        "tips": ["⏰ 시간표를 짜고 철저히 지키기", "📝 중요한 정보는 반복해서 외우기", "📊 결과를 측정하며 성과 관리"]
-    },
-    "ESFJ": {
-        "title": "협력적이고 친화적인 공부법",
-        "description": "다른 사람들과 함께 공부하며 동기부여를 얻습니다. 그룹 활동과 협력을 통해 지식을 공유하고 배웁니다.",
-        "tips": ["👭 친구들과 함께하는 스터디 모임", "🤝 서로에게 가르쳐주며 학습", "💖 칭찬과 격려로 학습 동기 유지"]
-    },
-    "ENFJ": {
-        "title": "공감적이고 협력적인 공부법",
-        "description": "사람들과의 관계 속에서 성장합니다. 학습 내용을 다른 사람들에게 설명해주면서 자신의 이해를 높입니다.",
-        "tips": ["👥 멘토링이나 튜터링 활동", "🙏 다른 사람의 의견을 경청하며 학습", "🗣️ 학습한 내용을 발표하며 정리"]
-    },
-    "ENTJ": {
-        "title": "전략적이고 리더십 있는 공부법",
-        "description": "목표 달성을 위해 효율적인 전략을 세웁니다. 스스로 리더가 되어 학습 과정을 주도하고 관리합니다.",
-        "tips": ["🎯 명확한 목표와 기한 설정", "⚙️ 학습 효율을 높이는 시스템 구축", "📈 학습 진행 상황을 체계적으로 점검"]
-    }
-}
-
+# 페이지 설정
 st.set_page_config(
-    page_title="MBTI 유형별 공부법 추천",
-    page_icon="📚",
-    layout="centered"
+    page_title="MBTI 유형별 국가 분석 (기본 데이터 활용)",
+    page_icon="📊",
+    layout="wide"
 )
 
 # 제목 및 설명
-st.title("📚 MBTI 유형별 맞춤형 공부법")
-st.markdown("자신의 MBTI 유형을 선택하고, 가장 효과적인 공부 방법을 알아보세요! ✨")
+st.title("📊 MBTI 유형별 국가 TOP 10 분석")
+st.markdown("데이터 파일이 존재하면 그 파일을 읽어오고, 없다면 업로드된 파일을 사용합니다.")
+
+# 데이터 로드 함수
+@st.cache_data
+def load_data(file):
+    return pd.read_csv(file)
+
+def get_mbti_proportions(df):
+    """국가별 MBTI 유형 비율을 계산하는 함수"""
+    if 'country' not in df.columns or 'mbti_type' not in df.columns:
+        return None
+    
+    country_mbti_counts = df.groupby(['country', 'mbti_type']).size().reset_index(name='count')
+    total_counts_by_country = df.groupby('country').size().reset_index(name='total')
+    
+    merged_df = pd.merge(country_mbti_counts, total_counts_by_country, on='country')
+    merged_df['proportion'] = merged_df['count'] / merged_df['total']
+    
+    return merged_df
 
 st.divider()
 
-# MBTI 유형 선택 드롭다운 메뉴
-mbti_types = sorted(list(mbti_study_tips.keys()))
-selected_mbti = st.selectbox(
-    "당신의 MBTI 유형은 무엇인가요?",
-    mbti_types
-)
+# 기본 데이터 파일 경로
+default_data_path = "mbti_data.csv"
 
-if selected_mbti:
-    st.divider()
+# 1. 파일 업로더
+uploaded_file = st.file_uploader("CSV 파일을 업로드하세요 (선택 사항)", type="csv")
 
-    study_info = mbti_study_tips[selected_mbti]
-    
-    st.subheader(f"✅ {selected_mbti} 유형을 위한 공부법")
-    
-    # 제목
-    st.write(f"### <p style='color: #4CAF50; font-weight: bold;'>{study_info['title']}</p>", unsafe_allow_html=True)
-    
-    # 설명
-    st.info(study_info['description'])
-    
-    # 팁 리스트
-    st.write("#### 💡 추천 공부 팁")
-    for tip in study_info['tips']:
-        st.write(f"- {tip}")
+df = None
+if uploaded_file is not None:
+    # 2. 업로드된 파일이 있다면 그 파일을 사용
+    st.info("✅ 업로드된 파일을 사용합니다.")
+    df = load_data(uploaded_file)
+else:
+    try:
+        # 3. 업로드된 파일이 없으면 기본 데이터 사용
+        st.info(f"📁 기본 데이터 파일 '{default_data_path}'를 사용합니다.")
+        df = load_data(default_data_path)
+    except FileNotFoundError:
+        st.warning(f"⚠️ 기본 데이터 파일 '{default_data_path}'을 찾을 수 없습니다. 파일을 업로드해 주세요.")
+        df = None
 
-    st.divider()
+if df is not None:
+    # 데이터 처리 및 분석
+    proportions_df = get_mbti_proportions(df)
+    
+    if proportions_df is not None:
+        # 각 MBTI 유형별로 비율이 가장 높은 국가 찾기
+        top_countries_by_mbti = proportions_df.loc[proportions_df.groupby('mbti_type')['proportion'].idxmax()]
+        
+        # 전체 비율 기준으로 상위 10개 국가 정렬
+        top_10_countries = top_countries_by_mbti.sort_values(by='proportion', ascending=False).head(10)
+        
+        st.subheader("업로드된 데이터 미리보기")
+        st.dataframe(df.head())
+        st.write("---")
 
-st.markdown("---")
-st.markdown("궁금한 점이 있다면 언제든지 물어보세요! 😊")
+        if not top_10_countries.empty:
+            st.subheader("✨ MBTI 유형별 최고 비율 국가 Top 10")
+            
+            # Altair 차트 생성
+            chart = alt.Chart(top_10_countries).mark_bar().encode(
+                x=alt.X('proportion', axis=alt.Axis(title='비율', format='.1%')),
+                y=alt.Y('country', sort='-x', axis=alt.Axis(title='국가')),
+                tooltip=[
+                    alt.Tooltip('country', title='국가'),
+                    alt.Tooltip('mbti_type', title='MBTI 유형'),
+                    alt.Tooltip('proportion', title='비율', format='.2%')
+                ],
+                color=alt.Color('mbti_type', title='MBTI 유형')
+            ).properties(
+                title="MBTI 유형별 최고 비율 국가 TOP 10"
+            ).interactive()
+            
+            st.altair_chart(chart, use_container_width=True)
+
+        else:
+            st.warning("데이터 분석 결과가 없습니다. CSV 파일의 형식을 확인해 주세요.")
+            
+    else:
+        st.error("업로드된 CSV 파일에 'country' 또는 'mbti_type' 컬럼이 포함되어 있는지 확인해 주세요.")
