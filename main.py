@@ -1,12 +1,3 @@
-안녕하세요! MBTI 유형별 맞춤형 공부법을 추천해주는 웹사이트를 Streamlit으로 만드는 코드를 작성해 드릴게요.
-
-아래 코드는 Streamlit Cloud에서 바로 실행할 수 있도록 간단하게 구성되었습니다. 사용자가 MBTI 유형을 선택하면, 해당 유형의 특징에 맞는 효과적인 공부 방법을 보여줍니다.
-
-💻 Streamlit 앱 코드
-다음 코드를 app.py 파일로 저장한 후, Streamlit Cloud에 배포하면 됩니다.
-
-Python
-
 import streamlit as st
 
 # MBTI 유형별 공부법 데이터 (간단한 예시)
